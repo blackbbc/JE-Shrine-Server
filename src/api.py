@@ -30,7 +30,7 @@ def validate(validator):
         @wraps(func)
         def wrapper(*args, **kwargs):
             try:
-                validator.validate(request.json)
+                request.json = validator.validate(request.json)
             except SchemaError as e:
                 raise BadRequest(str(e))
             return func(*args, **kwargs)
