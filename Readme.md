@@ -1,9 +1,12 @@
 # 自由神社
-自由神社后端
+
+![alt](http://www.moeje.org/wp-content/uploads/2016/07/017.jpg)
+
+自由神社后端——[http://www.moeje.org/](http://www.moeje.org/)
 
 ## 相关文档
-1. [数据库结构](doc/db.md)
-2. [API文档](doc/api.md)
+- [数据库结构](doc/db.md)
+- [API文档](https://blackbbc.github.io/slate/)
 
 ## 环境要求
 - Python 3.6+

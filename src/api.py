@@ -30,10 +30,10 @@ def validate(validator):
         @wraps(func)
         def wrapper(*args, **kwargs):
             try:
-                request.json = validator.validate(request.json)
+                data = validator.validate(request.json)
             except SchemaError as e:
                 raise BadRequest(str(e))
-            return func(*args, **kwargs)
+            return func(data, *args, **kwargs)
         return wrapper
     return decorator
 
@@ -41,11 +41,11 @@ def validate(validator):
 
 @bp.route('/register', methods=['POST'])
 @validate(RegisterSchema)
-def register():
-    username = request.json['username']
-    password = request.json['password']
-    password2 = request.json['password2']
-    email = request.json['email']
+def register(data):
+    username = data['username']
+    password = data['password']
+    password2 = data['password2']
+    email = data['email']
 
     if password != password2:
         raise BadRequest('两次输入的密码不一致')
@@ -66,15 +66,18 @@ def register():
 
 @bp.route('/login', methods=['POST'])
 @validate(LoginSchema)
-def login():
-    username = request.json['username']
-    password = request.json['password']
+def login(data):
+    username = data['username']
+    password = data['password']
+    remember = data['remember']
+
     udoc = User.objects(username=username).first()
     if not udoc:
         raise Unauthorized('用户名或密码错误')
     if not check_password_hash(udoc.passwordHash, password):
         raise Unauthorized('用户名或密码错误')
-    login_user(udoc)
+
+    login_user(udoc, remember=remember)
 
     return jsonify(udoc)
 

@@ -11,7 +11,8 @@ RegisterSchema = Schema({
 
 LoginSchema = Schema({
     'username': And(str, len),
-    'password': And(str, len)
+    'password': And(str, len),
+    'remember': bool
 })
 
 CreateMusicSchema = Schema({
