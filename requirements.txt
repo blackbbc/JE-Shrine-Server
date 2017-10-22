@@ -2,6 +2,5 @@ pymongo==3.3.1
 Flask==0.12.2
 Flask_Login==0.4.0
 flask_mongoengine==0.9.3
-Flask_WTF==0.14.2
+schema==0.6.6
 Werkzeug==0.12.2
-WTForms==2.1
