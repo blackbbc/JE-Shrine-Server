@@ -70,11 +70,17 @@ def get_users():
     udocs = User.objects()
     return jsonify(code=0, data=udocs)
 
-@bp.route('/users/<string:uid>')
-def get_user(uid):
-    return 'get' + uid
+@bp.route('/users/<string:username>')
+@login_required
+def get_user(username):
+    udoc = User.objects(username=username)
+    if udoc:
+        return jsonify(code=0, data=udoc)
+    else:
+        return jsonify(code=201, msg='用户不存在')
 
 @bp.route('/users/<string:uid>', methods=['PUT'])
+@login_required
 def update_user(uid):
     return 'put' + uid
 
@@ -84,6 +90,7 @@ def get_multiple_music():
     pass
 
 @bp.route('/music', methods=['POST'])
+@login_required
 def create_music():
     pass
 
@@ -92,6 +99,7 @@ def get_music(mid):
     pass
 
 @bp.route('/music/<string:mid>', methods=['PUT'])
+@login_required
 def update_music(mid):
     pass
 
