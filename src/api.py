@@ -5,6 +5,7 @@ from flask_login import login_required, login_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import builtin
+from error import BadRequest, Unauthorized, PermissionDenied, NotFound, Conflict
 from model import Music, Star, Tag, User, login_manager
 from form import RegisterForm, LoginForm
 
@@ -50,14 +51,14 @@ def login():
         password = form.password.data
         udoc = User.objects(username=username).first()
         if not udoc:
-            return jsonify(code=201, msg='用户名或密码错误')
+            raise Unauthorized('用户名或密码错误')
         if not check_password_hash(udoc.passwordHash, password):
-            return jsonify(code=201, msg='用户名或密码错误')
+            raise Unauthorized('用户名或密码错误')
         login_user(udoc)
 
-        return jsonify(code=0, data=udoc)
+        return jsonify(udoc)
     else:
-        return jsonify(code=200, msg=next(iter(form.errors.values()))[0])
+        raise BadRequest(next(iter(form.errors.values()))[0])
 
 @bp.route('/logout')
 def logout():

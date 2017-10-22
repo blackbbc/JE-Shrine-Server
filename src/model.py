@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-
 from bson.objectid import ObjectId
 
-from flask import jsonify
 import flask_login
 from flask_mongoengine import MongoEngine
+
+from error import Unauthorized
 
 db = MongoEngine()
 login_manager = flask_login.LoginManager()
@@ -64,4 +64,4 @@ def user_loader(uid):
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    return jsonify(code=100, msg="请先登录")
+    raise Unauthorized('未登录')
