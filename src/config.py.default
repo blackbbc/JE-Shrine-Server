@@ -1,0 +1,7 @@
+SECRET_KEY = 'You Guess!'
+
+WTF_CSRF_ENABLED = False
+
+MONGODB_SETTINGS = {
+    'DB': 'je-shrine'
+}
