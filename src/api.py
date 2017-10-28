@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 
 from functools import wraps
+from bson.objectid import ObjectId
 
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, login_user, logout_user, current_user
@@ -103,7 +104,7 @@ def get_user(username):
     if udoc:
         return jsonify(udoc)
     else:
-        NotFound('用户不存在')
+        raise NotFound('用户不存在')
 
 @bp.route('/users/<string:uid>', methods=['PATCH'])
 @login_required
@@ -140,15 +141,17 @@ def create_music(data):
                  tags = tags, content = content,
                  images = images,
                  references = references)
-    print(mdoc.to_json())
     mdoc.save()
-
 
     return jsonify(mdoc)
 
 @bp.route('/music/<string:mid>')
 def get_music(mid):
-    pass
+    if ObjectId.is_valid(mid):
+        mdoc = Music.objects(id=mid).first()
+        if mdoc:
+            return jsonify(mdoc)
+    raise NotFound('曲谱不存在')
 
 @bp.route('/music/<string:mid>', methods=['PUT'])
 @login_required
