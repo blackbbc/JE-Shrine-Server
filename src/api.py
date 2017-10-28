@@ -3,7 +3,7 @@
 from functools import wraps
 
 from flask import Blueprint, jsonify, request
-from flask_login import login_required, login_user, logout_user
+from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from schema import SchemaError
 
@@ -62,6 +62,8 @@ def register(data):
                 email=email, role=builtin.ROLE_DEFAULT)
     udoc.save()
 
+    udoc.passwordHash = None
+
     return jsonify(udoc)
 
 @bp.route('/login', methods=['POST'])
@@ -79,6 +81,8 @@ def login(data):
 
     login_user(udoc, remember=remember)
 
+    udoc.passwordHash = None
+
     return jsonify(udoc)
 
 @bp.route('/logout')
@@ -89,22 +93,28 @@ def logout():
 @bp.route('/users')
 @login_required
 def get_users():
-    udocs = User.objects()
-    return jsonify(code=0, data=udocs)
+    udocs = User.objects().exclude('passwordHash')
+    return jsonify(total=0, data=udocs)
 
 @bp.route('/users/<string:username>')
 @login_required
 def get_user(username):
-    udoc = User.objects(username=username)
+    udoc = User.objects(username=username).exclude('passwordHash').first()
     if udoc:
-        return jsonify(code=0, data=udoc)
+        return jsonify(udoc)
     else:
-        return jsonify(code=201, msg='用户不存在')
+        NotFound('用户不存在')
 
-@bp.route('/users/<string:uid>', methods=['PUT'])
+@bp.route('/users/<string:uid>', methods=['PATCH'])
 @login_required
-def update_user(uid):
+def modify_user(uid):
     return 'put' + uid
+
+@bp.route('/status')
+@login_required
+def user_status():
+    udoc = User.objects(id=current_user.get_id()).exclude('passwordHash').first()
+    return jsonify(udoc)
 
 # Music
 @bp.route('/music')

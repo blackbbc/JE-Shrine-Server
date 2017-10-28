@@ -23,6 +23,7 @@
 2. 修改`src/config.py.default`相关参数并改名为`src/config.py`
 3. 运行服务器
 ```bash
+cd src
 export FLASK_DEBUG=1
 export FLASK_APP=app.py
 flask run

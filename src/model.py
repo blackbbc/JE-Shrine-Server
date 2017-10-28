@@ -19,6 +19,7 @@ class User(db.Document):
     passwordHash = db.StringField(required=True)
     email = db.StringField(required=True)
     role = db.IntField(required=True)
+    avatar = db.StringField(required=False, default='')
 
     @property
     def is_active(self):
