@@ -10,12 +10,12 @@ from schema import SchemaError
 import builtin
 from error import APIException, BadRequest, Unauthorized, PermissionDenied, NotFound, Conflict
 from model import Music, Star, Tag, User, login_manager
-from validator import RegisterSchema, LoginSchema
+from validator import RegisterSchema, LoginSchema, CreateMusicSchema
 
 bp = Blueprint('api', __name__)
 
 @bp.errorhandler(APIException)
-def handle_invalid_usage(error):
+def api_error(error):
     resp = jsonify(message = error.message)
     resp.status_code = error.status_code
     return resp
@@ -123,8 +123,28 @@ def get_multiple_music():
 
 @bp.route('/music', methods=['POST'])
 @login_required
-def create_music():
-    pass
+@validate(CreateMusicSchema)
+def create_music(data):
+    title = data['title']
+    alias = data['alias']
+    author = data['author']
+    album = data['album']
+    tags = data['tags']
+    content = data['content']
+    images = data['images']
+    references = data['references']
+
+    mdoc = Music(title = title, alias = alias,
+                 userId = current_user.get_id(),
+                 author = author, album = album,
+                 tags = tags, content = content,
+                 images = images,
+                 references = references)
+    print(mdoc.to_json())
+    mdoc.save()
+
+
+    return jsonify(mdoc)
 
 @bp.route('/music/<string:mid>')
 def get_music(mid):

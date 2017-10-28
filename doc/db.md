@@ -7,6 +7,7 @@
 | passwordHash | string   |        |
 | email        | string   |        |
 | role         | int      |        |
+| avatar       | string   |        |
 
 ### Tag
 
@@ -31,7 +32,7 @@
 | updateDt     | Datetime |        |
 | images       | dict     | {"small": string, "large": string} |
 | references   | dict     | [{"name": string, "url": string}]  |
-| viewCount    | int      |        |
+| views        | int      |        |
 | status       | int      |        |
 
 ### Star
