@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from flask_wtf import FlaskForm
+from wtforms import validators, IntegerField, StringField
 from schema import Schema, Optional, And, Or
 
 RegisterSchema = Schema({
@@ -31,3 +33,9 @@ CreateMusicSchema = Schema({
         'url': And(str, len)
     }]
 })
+
+class QueryMusicParam(FlaskForm):
+    page = IntegerField('Page', [validators.Optional(), validators.NumberRange(min=1)], default=1)
+    size = IntegerField('Size', [validators.Optional(), validators.NumberRange(min=1)], default=10)
+    sort = StringField('Sort By', [validators.Optional(), validators.AnyOf(['date', 'views'])], default='date')
+    order = StringField('Order By', [validators.Optional(), validators.AnyOf(['asc', 'desc'])], default='desc')

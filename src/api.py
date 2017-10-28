@@ -11,7 +11,7 @@ from schema import SchemaError
 import builtin
 from error import APIException, BadRequest, Unauthorized, PermissionDenied, NotFound, Conflict
 from model import Music, Star, Tag, User, login_manager
-from validator import RegisterSchema, LoginSchema, CreateMusicSchema
+from validator import RegisterSchema, LoginSchema, CreateMusicSchema, QueryMusicParam
 
 bp = Blueprint('api', __name__)
 
@@ -39,7 +39,6 @@ def validate(validator):
     return decorator
 
 # User
-
 @bp.route('/register', methods=['POST'])
 @validate(RegisterSchema)
 def register(data):
@@ -94,7 +93,7 @@ def logout():
 @bp.route('/users')
 @login_required
 def get_users():
-    udocs = User.objects().exclude('passwordHash')
+    udocs = User.objects.exclude('passwordHash')
     return jsonify(total=0, data=udocs)
 
 @bp.route('/users/<string:username>')
@@ -120,7 +119,28 @@ def user_status():
 # Music
 @bp.route('/music')
 def get_multiple_music():
-    pass
+    param = QueryMusicParam(request.args)
+    if param.validate():
+        total = Music.objects.count()
+
+        if param.order.data == 'desc':
+            order_by = '-'
+        else:
+            order_by = '+'
+
+        if param.sort.data == 'date':
+            order_by += 'updateDt'
+        else:
+            order_by += 'views'
+
+        mdocs = Music.objects.order_by(order_by).skip(
+            (param.page.data - 1) * param.size.data
+        ).limit(
+            param.size.data
+        )
+        return jsonify(total=total, data=mdocs)
+    else:
+        raise BadRequest('参数错误')
 
 @bp.route('/music', methods=['POST'])
 @login_required
@@ -153,9 +173,9 @@ def get_music(mid):
             return jsonify(mdoc)
     raise NotFound('曲谱不存在')
 
-@bp.route('/music/<string:mid>', methods=['PUT'])
+@bp.route('/music/<string:mid>', methods=['PATCH'])
 @login_required
-def update_music(mid):
+def modify_music(mid):
     pass
 
 # Search
