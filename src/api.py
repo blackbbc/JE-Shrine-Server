@@ -9,13 +9,19 @@ from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from schema import SchemaError
 
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.query import MultiMatch
+
 import builtin
 from error import APIException, BadRequest, Unauthorized, PermissionDenied, NotFound, Conflict
 from model import Music, Star, Tag, User, login_manager
 from validator import RegisterSchema, LoginSchema, CreateMusicSchema, QueryMusicParam, \
-                      ModifyMusicSchema, ModifyUserSchema
+                      ModifyMusicSchema, ModifyUserSchema, SearchMusicParam
 
 bp = Blueprint('api', __name__)
+
+es = Elasticsearch()
 
 @bp.errorhandler(APIException)
 def api_error(error):
@@ -220,10 +226,48 @@ def modify_music(data, mid):
 
 # Search
 
-@bp.route('/search')
-def ajax_search():
-    pass
+@bp.route('/suggest')
+def suggest():
+    if 'term' in request.args and request.args['term']:
+        term = request.args['term']
 
-@bp.route('/search', methods=['POST'])
+        s = Search(using=es, index='je-shrine') \
+                .query('match_phrase_prefix', title=term)
+
+        res = s.execute()
+
+        data = [ hit.title for hit in res[0:10] ]
+
+        return jsonify(data)
+    else:
+        return jsonify([])
+
+@bp.route('/search')
 def search():
-    pass
+    param = SearchMusicParam(request.args)
+    if param.validate():
+        q = param.q.data
+        page = param.page.data
+        size = param.size.data
+
+        s = Search(using=es, index='je-shrine') \
+                .query(MultiMatch(
+                    query=q,
+                    fields=['title', 'alias', 'author', 'album', 'tags']
+                    ))
+
+        res = s.execute()
+
+        total = res.hits.total
+
+        data = []
+
+        for hit in res[(page - 1) * size: page * size]:
+            item = hit.to_dict()
+            item['id'] = hit.meta.id
+            data.append(item)
+
+        return jsonify(total=total, data=data)
+
+    else:
+        raise BadRequest('参数错误')

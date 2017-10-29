@@ -1,6 +1,11 @@
 pymongo==3.3.1
+elasticsearch==5.2.0
+elasticsearch_dsl==5.3.0
 Flask==0.12.2
 Flask_Login==0.4.0
 flask_mongoengine==0.9.3
+Flask_WTF==0.14.2
 schema==0.6.6
 Werkzeug==0.12.2
+WTForms==2.1
+mongo-connector==2.5.1

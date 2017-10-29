@@ -1,0 +1,23 @@
+Music
+PUT http://localhost:9200/je-shrine
+
+{
+    "mappings": {
+        "music": {
+            "_source": {
+                "enabled": true
+            },
+            "dynamic": false,
+            "properties": {
+                "title": {"type": "text"},
+                "alias": {"type": "text"},
+                "author": {"type": "text"},
+                "album": {"type": "text"},
+                "tags": {"type": "text"},
+                "createDt": {"type": "date"},
+                "updateDt": {"type": "date"},
+                "views": {"type": "integer"}
+            }
+        }
+    }
+}
