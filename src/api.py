@@ -1,6 +1,7 @@
 # -*- coding: utf-8
 
 from functools import wraps
+from datetime import datetime
 from bson.objectid import ObjectId
 
 from flask import Blueprint, jsonify, request
@@ -11,7 +12,8 @@ from schema import SchemaError
 import builtin
 from error import APIException, BadRequest, Unauthorized, PermissionDenied, NotFound, Conflict
 from model import Music, Star, Tag, User, login_manager
-from validator import RegisterSchema, LoginSchema, CreateMusicSchema, QueryMusicParam
+from validator import RegisterSchema, LoginSchema, CreateMusicSchema, QueryMusicParam, \
+                      ModifyMusicSchema, ModifyUserSchema
 
 bp = Blueprint('api', __name__)
 
@@ -35,6 +37,18 @@ def validate(validator):
             except SchemaError as e:
                 raise BadRequest(str(e))
             return func(data, *args, **kwargs)
+        return wrapper
+    return decorator
+
+def role_required(role):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            udoc = User.objects(id=current_user.get_id()).first()
+            if udoc.role >= role:
+                return func(*args, **kwargs)
+            else:
+                raise PermissionDenied('没有权限使用该API')
         return wrapper
     return decorator
 
@@ -107,8 +121,23 @@ def get_user(username):
 
 @bp.route('/users/<string:uid>', methods=['PATCH'])
 @login_required
-def modify_user(uid):
-    return 'put' + uid
+@role_required(builtin.ROLE_ADMIN)
+@validate(ModifyUserSchema)
+def modify_user(data, uid):
+    if ObjectId.is_valid(uid):
+        udoc = User.objects(id=uid).first()
+        if udoc:
+            for name, value in data.items():
+                if 'name' == 'password':
+                    udoc.passwordHash = generate_password_hash(value)
+                else:
+                    setattr(udoc, name, value)
+            udoc.save()
+
+            udoc.passwordHash = None
+
+            return jsonify(udoc)
+    raise NotFound('用户不存在')
 
 @bp.route('/status')
 @login_required
@@ -175,8 +204,19 @@ def get_music(mid):
 
 @bp.route('/music/<string:mid>', methods=['PATCH'])
 @login_required
-def modify_music(mid):
-    pass
+@role_required(builtin.ROLE_VIP)
+@validate(ModifyMusicSchema)
+def modify_music(data, mid):
+    if ObjectId.is_valid(mid):
+        mdoc = Music.objects(id=mid).first()
+        if mdoc:
+            for name, value in data.items():
+                setattr(mdoc, name, value)
+            mdoc.updateDt = datetime.now()
+            mdoc.save()
+
+            return jsonify(mdoc)
+    raise NotFound('曲谱不存在')
 
 # Search
 

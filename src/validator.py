@@ -17,6 +17,13 @@ LoginSchema = Schema({
     'remember': bool
 })
 
+ModifyUserSchema = Schema({
+    Optional('password'): And(str, len),
+    Optional('email'): And(str, len),
+    Optional('role'): And(int, Or(10, 20, 30)),
+    Optional('avatar'): And(str, len)
+})
+
 CreateMusicSchema = Schema({
     'title': And(str, len),
     Optional('alias', default=[]): [And(str, len)],
@@ -32,6 +39,24 @@ CreateMusicSchema = Schema({
         'name': And(str, len),
         'url': And(str, len)
     }]
+})
+
+ModifyMusicSchema = Schema({
+    Optional('title'): And(str, len),
+    Optional('alias'): [And(str, len)],
+    Optional('author'): str,
+    Optional('album'): str,
+    Optional('tags'): [And(str, len)],
+    Optional('content'): And(str, len),
+    Optional('images'): {
+        'small': And(str, len),
+        'large': And(str, len)
+    },
+    Optional('references'): [{
+        'name': And(str, len),
+        'url': And(str, len)
+    }],
+    Optional('status'): And(int, Or(0, 1))
 })
 
 class QueryMusicParam(FlaskForm):
