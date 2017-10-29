@@ -1,3 +1,6 @@
+from functools import singledispatch
+from datetime import datetime
+
 from bson import json_util
 from bson.objectid import ObjectId
 from flask.json import JSONEncoder
@@ -11,18 +14,36 @@ class MongoJSONEncoder(JSONEncoder):
     documents and queryset objects.
     """
 
-    def serialize_mongo_doc(self, doc):
-        if '_id' in doc and isinstance(doc['_id'], ObjectId):
-            doc['id'] = str(doc['_id'])
-            del a['_id']
-        for key in doc.keys():
-            if isinstance(doc[key], ObjectId):
-
-        return json_util._json_convert(doc)
-
     def default(self, obj):
-        if isinstance(obj, BaseDocument):
-            return self.serialize_mongo_doc(obj.to_mongo())
-        elif isinstance(obj, QuerySet):
-            return json_util._json_convert(obj.as_pymongo())
-        return superclass.default(self, obj)
+        """
+        Convert the object into JSON-serializable value.
+        Parameters:
+            obj: Object to be converted.
+        """
+
+        @singledispatch
+        def convert(obj):
+            print('default')
+            return JSONEncoder.default(self, obj)
+
+        @convert.register(ObjectId)
+        def _(obj):
+            return str(obj)
+
+        @convert.register(datetime)
+        def _(obj):
+            return int(obj.timestamp())
+
+        @convert.register(BaseDocument)
+        def _(obj):
+            doc = obj.to_mongo()
+            if '_id' in doc and isinstance(doc['_id'], ObjectId):
+                doc['id'] = doc.pop('_id')
+            return doc
+
+        @convert.register(QuerySet)
+        def _(obj):
+            docs = [ doc for doc in obj ]
+            return docs
+
+        return convert(obj)
