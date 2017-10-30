@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href='https://www.versioneye.com/user/projects/598d6f846725bd005228a0e4'><img src='https://www.versioneye.com/user/projects/598d6f846725bd005228a0e4/badge.svg?style=flat-square' alt="Dependency Status" /></a>
-  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/blackbbc/JE-Shrine-Server/blob/master/LICENSE)
+  <a href='https://github.com/blackbbc/JE-Shrine-Server/blob/master/LICENSE'><img src='https://img.shields.io/github/license/mashape/apistatus.svg' alt="License" /></a>
 </p>
 
 <p align="center">
