@@ -60,6 +60,7 @@ ModifyMusicSchema = Schema({
 class QueryMusicParam(FlaskForm):
     page = IntegerField('Page', [validators.Optional(), validators.NumberRange(min=1)], default=1)
     size = IntegerField('Size', [validators.Optional(), validators.NumberRange(min=1)], default=10)
+    tag = StringField('Tag', [validators.Optional(), validators.Length(min=1)])
     sort = StringField('Sort By', [validators.Optional(), validators.AnyOf(['date', 'views'])], default='date')
     order = StringField('Order By', [validators.Optional(), validators.AnyOf(['asc', 'desc'])], default='desc')
 

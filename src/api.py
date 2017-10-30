@@ -156,7 +156,6 @@ def user_status():
 def get_multiple_music():
     param = QueryMusicParam(request.args)
     if param.validate():
-        total = Music.objects.count()
 
         if param.order.data == 'desc':
             order_by = '-'
@@ -168,11 +167,20 @@ def get_multiple_music():
         else:
             order_by += 'views'
 
-        mdocs = Music.objects.order_by(order_by).skip(
+        tag = param.tag.data
+        if tag:
+            mdocs = Music.objects(tags=tag)
+        else:
+            mdocs = Music.objects
+
+        total = mdocs.count()
+
+        mdocs = mdocs.order_by(order_by).skip(
             (param.page.data - 1) * param.size.data
         ).limit(
             param.size.data
         )
+
         return jsonify(total=total, data=mdocs)
     else:
         raise BadRequest('参数错误')
