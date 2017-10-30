@@ -1,8 +1,14 @@
-# 自由神社
-
 ![alt](http://www.moeje.org/wp-content/uploads/2016/07/017.jpg)
 
-自由神社后端——[http://www.moeje.org/](http://www.moeje.org/)
+<p align="center">
+  <a href='https://www.versioneye.com/user/projects/598d6f846725bd005228a0e4'><img src='https://www.versioneye.com/user/projects/598d6f846725bd005228a0e4/badge.svg?style=flat-square' alt="Dependency Status" /></a>
+  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/blackbbc/JE-Shrine-Server/blob/master/LICENSE)
+</p>
+
+<p align="center">
+  [自由神社](http://www.moeje.org/)后端部分，使用Flask开发
+  前端部分——[https://github.com/TOKdawn/JE_shrine](https://github.com/TOKdawn/JE_shrine)
+</p>
 
 ## 相关文档
 - [数据库结构](doc/db.md)
