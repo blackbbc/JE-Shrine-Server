@@ -6,8 +6,8 @@
 </p>
 
 <p align="center">
-  [自由神社](http://www.moeje.org/)后端部分，使用Flask开发
-  前端部分——[https://github.com/TOKdawn/JE_shrine](https://github.com/TOKdawn/JE_shrine)
+  <a href="http://www.moeje.org/">自由神社</a>后端部分，使用Flask开发
+  前端部分——<a href='https://github.com/TOKdawn/JE_shrine'>https://github.com/TOKdawn/JE_shrine</a>
 </p>
 
 ## 相关文档
