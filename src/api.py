@@ -181,21 +181,7 @@ def get_multiple_music():
 @login_required
 @validate(CreateMusicSchema)
 def create_music(data):
-    title = data['title']
-    alias = data['alias']
-    author = data['author']
-    album = data['album']
-    tags = data['tags']
-    content = data['content']
-    images = data['images']
-    references = data['references']
-
-    mdoc = Music(title = title, alias = alias,
-                 userId = current_user.get_id(),
-                 author = author, album = album,
-                 tags = tags, content = content,
-                 images = images,
-                 references = references)
+    mdoc = Music(userId = current_user.get_id(), **data)
     mdoc.save()
 
     return jsonify(mdoc)

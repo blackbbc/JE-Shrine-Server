@@ -18,22 +18,24 @@
 
 ### Music
 
-| field        | type     | remark |
-| ------------ | -------- | -----  |
-| _id          | ObjectId |        |
-| title        | string   |        |
-| alias        | [string] |        |
-| userId       | ObjectId |        |
-| author       | string   |        |
-| album        | string   |        |
-| tags         | [string] |        |
-| content      | string   |        |
-| createDt     | Datetime |        |
-| updateDt     | Datetime |        |
-| images       | dict     | {"small": string, "large": string} |
+| field        | type     | remark                             |
+| ------------ | -------- | -----                              |
+| _id          | ObjectId |                                    |
+| title        | string   |                                    |
+| alias        | [string] |                                    |
+| userId       | ObjectId |                                    |
+| author       | string   | 作词                               |
+| composer     | string   | 作曲                               |
+| singer       | string   | 演唱者                             |
+| album        | string   |                                    |
+| tags         | [string] |                                    |
+| content      | string   | 曲谱内容                           |
+| createDt     | Datetime |                                    |
+| updateDt     | Datetime |                                    |
+| cover        | string   |                                    |
 | references   | dict     | [{"name": string, "url": string}]  |
-| views        | int      |        |
-| status       | int      |        |
+| views        | int      |                                    |
+| status       | int      |                                    |
 
 ### Star
 
