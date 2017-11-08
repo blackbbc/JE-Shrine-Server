@@ -1,13 +1,14 @@
 ### User
 
-| field        | type     | remark |
-| ------------ | -------- | -----  |
-| _id          | ObjectId |        |
-| username     | string   |        |
-| passwordHash | string   |        |
-| email        | string   |        |
-| role         | int      |        |
-| avatar       | string   |        |
+| field        | type     | remark   |
+| ------------ | -------- | -------- |
+| _id          | ObjectId |          |
+| bid          | int      | 百度uid  |
+| username     | string   |          |
+| password     | string   | 密码Hash |
+| email        | string   |          |
+| role         | int      |          |
+| avatar       | string   |          |
 
 ### Tag
 

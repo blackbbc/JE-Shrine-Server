@@ -15,8 +15,10 @@ class Tag(db.Document):
     name = db.StringField(required=True)
 
 class User(db.Document):
+    bid = db.IntField(required=False)
     username = db.StringField(required=True)
-    passwordHash = db.StringField(required=True)
+    nickname = db.StringField(required=True)
+    password = db.StringField(required=True)
     email = db.StringField(required=True)
     role = db.IntField(required=True)
     avatar = db.StringField(required=False, default='')
