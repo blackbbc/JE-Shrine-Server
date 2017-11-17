@@ -15,9 +15,9 @@ class Tag(db.Document):
     name = db.StringField(required=True)
 
 class User(db.Document):
-    bid = db.IntField(required=False)
-    username = db.StringField(required=True)
-    nickname = db.StringField(required=True)
+    bid = db.IntField(required=False, default=0) # 百度id
+    username = db.StringField(required=False, default='') #登陆用户名
+    nickname = db.StringField(required=True) #显示名称
     password = db.StringField(required=True)
     email = db.StringField(required=True)
     role = db.IntField(required=True)
@@ -61,6 +61,11 @@ class Star(db.Document):
     music = db.ListField(db.ObjectIdField())
     createDt = db.DateTimeField(required=True, default=datetime.datetime.now)
     updateDt = db.DateTimeField(required=True, default=datetime.datetime.now)
+
+class Authorization(db.Document):
+    email = db.StringField(required=True)
+    code = db.StringField(required=True)
+    time = db.DateTimeField(required=False, default=datetime.datetime.now)
 
 @login_manager.user_loader
 def user_loader(uid):

@@ -31,8 +31,8 @@
 | album        | string   |                                    |
 | tags         | [string] |                                    |
 | content      | string   | 曲谱内容                           |
-| createDt     | Datetime |                                    |
-| updateDt     | Datetime |                                    |
+| createDt     | datetime |                                    |
+| updateDt     | datetime |                                    |
 | cover        | string   |                                    |
 | references   | dict     | [{"name": string, "url": string}]  |
 | views        | int      |                                    |
@@ -46,8 +46,17 @@
 | userId       | ObjectId   |        |
 | name         | string     |        |
 | music        | [ObjectId] |        |
-| createDt     | Datetime   |        |
-| updateDt     | Datetime   |        |
+| createDt     | datetime   |        |
+| updateDt     | datetime   |        |
+
+### Authorization
+
+| field  | type     | remark |
+| ------ | -------- | ------ |
+| _id    | ObjectId |        |
+| email  | string |        |
+| code   | string   |        |
+| time   | datetime      |        |
 
 ### Feedback
 
@@ -57,4 +66,4 @@
 | musicId      | ObjectId |        |
 | email        | string   |        |
 | content      | string   |        |
-| createDt     | Datetime |        |
+| createDt     | datetime |        |

@@ -1,7 +1,8 @@
 # -*- coding: utf-8
 
+import uuid
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson.objectid import ObjectId
 
 from flask import Blueprint, jsonify, request
@@ -14,8 +15,9 @@ from elasticsearch_dsl import Search
 from elasticsearch_dsl.query import MultiMatch
 
 import builtin
+from util import mail
 from error import APIException, BadRequest, Unauthorized, PermissionDenied, NotFound, Conflict
-from model import Music, Star, Tag, User, login_manager
+from model import Music, Star, Tag, User, Authorization, login_manager
 from validator import RegisterSchema, LoginSchema, CreateMusicSchema, QueryMusicParam, \
                       ModifyMusicSchema, ModifyUserSchema, SearchMusicParam
 
@@ -78,13 +80,39 @@ def register(data):
     if udoc:
         raise Conflict('邮箱已存在')
 
-    udoc = User(username=username, passwordHash=generate_password_hash(password),
-                email=email, role=builtin.ROLE_DEFAULT)
+    udoc = User(username=username, nickname=username, password=generate_password_hash(password),
+                email=email, role=builtin.ROLE_UNAUTHORIZED)
     udoc.save()
 
-    udoc.passwordHash = None
+    code = uuid.uuid4().hex
+    adoc = Authorization(email=email, code=code)
+    adoc.save()
+    mail.sendTo(email, '验证电子邮件地址', '感谢您注册自由神社账户\n\n点击此链接验证您的电子邮件 \
+            \n\n%s://%s/api/verify?code=%s\n' % (request.scheme, request.host, code))
+
+    udoc.password = None
 
     return jsonify(udoc)
+
+@bp.route('/verify')
+def verify():
+    code = request.args.get('code', None)
+
+    if code:
+        adoc = Authorization.objects(code=code).order_by('-time').first()
+        if adoc and adoc.time - datetime.now() < timedelta(hours=1):
+            udoc = User.objects(email=adoc.email).first()
+            if udoc.role == builtin.ROLE_UNAUTHORIZED:
+                udoc.role = builtin.ROLE_DEFAULT
+                udoc.save()
+
+            # udoc.password = None
+
+            return jsonify()
+        else:
+            raise BadRequest('验证码已失效')
+    else:
+        raise BadRequest('链接无效')
 
 @bp.route('/login', methods=['POST'])
 @validate(LoginSchema)
@@ -96,12 +124,12 @@ def login(data):
     udoc = User.objects(username=username).first()
     if not udoc:
         raise Unauthorized('用户名或密码错误')
-    if not check_password_hash(udoc.passwordHash, password):
+    if not check_password_hash(udoc.password, password):
         raise Unauthorized('用户名或密码错误')
 
     login_user(udoc, remember=remember)
 
-    udoc.passwordHash = None
+    udoc.password = None
 
     return jsonify(udoc)
 
@@ -113,13 +141,13 @@ def logout():
 @bp.route('/users')
 @login_required
 def get_users():
-    udocs = User.objects.exclude('passwordHash')
+    udocs = User.objects.exclude('password')
     return jsonify(total=0, data=udocs)
 
 @bp.route('/users/<string:username>')
 @login_required
 def get_user(username):
-    udoc = User.objects(username=username).exclude('passwordHash').first()
+    udoc = User.objects(username=username).exclude('password').first()
     if udoc:
         return jsonify(udoc)
     else:
@@ -135,12 +163,12 @@ def modify_user(data, uid):
         if udoc:
             for name, value in data.items():
                 if 'name' == 'password':
-                    udoc.passwordHash = generate_password_hash(value)
+                    udoc.password = generate_password_hash(value)
                 else:
                     setattr(udoc, name, value)
             udoc.save()
 
-            udoc.passwordHash = None
+            udoc.password = None
 
             return jsonify(udoc)
     raise NotFound('用户不存在')
@@ -148,7 +176,7 @@ def modify_user(data, uid):
 @bp.route('/status')
 @login_required
 def user_status():
-    udoc = User.objects(id=current_user.get_id()).exclude('passwordHash').first()
+    udoc = User.objects(id=current_user.get_id()).exclude('password').first()
     return jsonify(udoc)
 
 # Music
