@@ -1,14 +1,17 @@
 # -*- coding: utf-8
 
 import uuid
+import string
+import random
 from functools import wraps
 from datetime import datetime, timedelta
 from bson.objectid import ObjectId
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response, session
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from schema import SchemaError
+from captcha.image import ImageCaptcha
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
@@ -24,6 +27,9 @@ from validator import RegisterSchema, LoginSchema, CreateMusicSchema, QueryMusic
 bp = Blueprint('api', __name__)
 
 es = Elasticsearch()
+
+def random_generator(size=4, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
 
 @bp.errorhandler(APIException)
 def api_error(error):
@@ -60,6 +66,17 @@ def role_required(role):
         return wrapper
     return decorator
 
+# Captcha
+@bp.route('/captcha')
+def captcha():
+    image = ImageCaptcha()
+    captcha = random_generator()
+    session['captcha'] = captcha
+    data = image.generate(captcha)
+    resp = make_response(data.read())
+    resp.headers['Content-Type'] = 'image/png'
+    return resp
+
 # User
 @bp.route('/register', methods=['POST'])
 @validate(RegisterSchema)
@@ -68,6 +85,10 @@ def register(data):
     password = data['password']
     password2 = data['password2']
     email = data['email']
+    captcha = data['captcha']
+
+    if 'captcha' not in session or session['captcha'].lower() != captcha.lower():
+        raise BadRequest('验证码错误')
 
     if password != password2:
         raise BadRequest('两次输入的密码不一致')
