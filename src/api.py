@@ -114,6 +114,25 @@ def verify():
     else:
         raise BadRequest('链接无效')
 
+@bp.route('/verify/send')
+def send_verify_email():
+    email = request.args.get('email', None)
+
+    if email:
+        udoc = User.objects(email=email).first()
+        if udoc:
+            code = uuid.uuid4().hex
+            adoc = Authorization(email=email, code=code)
+            adoc.save()
+            mail.sendTo(email, '验证电子邮件地址', '感谢您注册自由神社账户\n\n点击此链接验证您的电子邮件 \
+                    \n\n%s://%s/api/verify?code=%s\n' % (request.scheme, request.host, code))
+
+            return jsonify()
+        else:
+            raise NotFound('用户不存在')
+    else:
+        raise BadRequest('链接无效')
+
 @bp.route('/login', methods=['POST'])
 @validate(LoginSchema)
 def login(data):
